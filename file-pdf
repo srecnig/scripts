@@ -1,0 +1,37 @@
+#!/bin/zsh
+
+set -e
+
+# we need exactly 2 args
+if [ "$#" -ne 2 ]; then
+  echo "Usage: file-pdf filename.pdf /path/to/archive"
+  exit 1
+fi
+
+# setup
+filename=$1
+archive_path=$2
+current_date=$(date +%F)
+current_year=$(date +%Y)
+
+# verify filename and archive directory
+if [ ! -f "$filename" ]; then
+  echo "Error: $filename is not a file."
+  exit 1
+fi
+
+if [ ! -d "$archive_path" ]; then
+  echo "Error: $archive_path is not a directory."
+  exit 1
+fi
+
+# construct new filename & folder
+new_filename="${current_date}_${filename}"
+archive_folder="${archive_path}${current_year}"
+mkdir -p "${archive_folder}"
+
+# run ocr
+ocrmypdf -l deu+eng --skip-text "${filename}" "${archive_folder}/${new_filename}"
+
+# open folder to check
+open "${archive_folder}"
